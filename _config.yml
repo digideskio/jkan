@@ -4,8 +4,8 @@ baseurl: /jkan
 logo: /img/jkan.png
 
 # Authentication
-github_client_id: 2cc3255a682f7a6e4397
-gatekeeper_host: https://digijkan.herokuapp.com
+github_client_id: 7d39454678902593350c
+gatekeeper_host: https://datafordevkan.herokuapp.com
 
 # Dataset schema
 schema: default
