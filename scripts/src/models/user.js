@@ -23,10 +23,9 @@ export default State.extend({
     this.set(Cookies.getJSON('jkan'))
   },
   initiateLogin: function () {
-    const returnParams = {clientId: this.clientId, proxyHost: this.proxyHost}
     const redirectParams = {
       client_id: this.clientId,
-      redirect_uri: window.location.href.split('?')[0] + '?' + $.param(returnParams),
+      redirect_uri: window.location.href.split('?')[0],
       scope: 'public_repo'
     }
     window.location.href = githubLoginUrl + '?' + $.param(redirectParams)
@@ -76,7 +75,7 @@ export default State.extend({
         auth: 'oauth'
       })
       const user = github.getUser()
-      user.show(null, (err, userData) => {
+      user.getProfile((err, userData) => {
         if (err) reject(err)
         else resolve(userData)
       })

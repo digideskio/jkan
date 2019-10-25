@@ -1,6 +1,5 @@
 import State from 'ampersand-state'
 import Github from 'github-api'
-import jsyaml from 'js-yaml'
 
 export default State.extend({
   props: {
@@ -8,7 +7,7 @@ export default State.extend({
     repoName: 'string',
     repoBranch: 'string',
     filePath: 'string',
-    defaultDir: 'string'
+    renderPath: 'string'
   },
   session: {
     user: 'state'
@@ -33,20 +32,16 @@ export default State.extend({
   },
   read: function () {
     return new Promise((resolve, reject) => {
-      this.repo.read(this.repoBranch, this.filePath, (err, contents) => {
+      this.repo.getContents(this.repoBranch, this.filePath, true, (err, contents) => {
         if (err) reject(err)
         else resolve(contents)
       })
     })
   },
-  create: function (fileName, contents) {
-    this.filePath = (this.defaultDir ? this.defaultDir + '/' : '') + fileName
-    return this.save(contents, `Created ${fileName}`)
-  },
   save: function (contents, commitMsg) {
     return new Promise((resolve, reject) => {
       if (!commitMsg) commitMsg = `Updated ${this.fileName}`
-      this.repo.write(this.repoBranch, this.filePath, contents, commitMsg, {}, (err, data) => {
+      this.repo.writeFile(this.repoBranch, this.filePath, contents, commitMsg, {}, (err, data) => {
         if (err) reject(err)
         else resolve(data)
       })
@@ -54,28 +49,10 @@ export default State.extend({
   },
   remove: function () {
     return new Promise((resolve, reject) => {
-      this.repo.remove(this.repoBranch, this.filePath, (err, data) => {
+      this.repo.deleteFile(this.repoBranch, this.filePath, (err, data) => {
         if (err) reject(err)
         else resolve(data)
       })
     })
-  },
-  formatYaml: function (data) {
-    return jsyaml.safeDump(data)
-  },
-  formatFrontMatter: function (data) {
-    return `---\n${this.formatYaml(data).trim()}\n---`
-  },
-  updateYamlString: function (yamlString, updateObject) {
-    for (let key in updateObject) {
-      const regex = new RegExp(`^( *${key}: +?).*`, 'm')
-      const match = yamlString.match(regex)
-      if (match) {
-        yamlString = yamlString.replace(regex, match[1] + updateObject[key])
-      } else {
-        yamlString += `\n${key}: ${updateObject[key]}`
-      }
-    }
-    return yamlString
   }
 })
